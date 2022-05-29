@@ -5,18 +5,19 @@ def loadMovieNames():
     movieNames = {}
     # The following line is updated from what's in the video to handle
     # encoding issues on some Ubuntu systems:
-    with codecs.open("ml-100k/u.ITEM", "r", encoding='utf-8', errors='ignore') as f:
+    with codecs.open("./ml-100k/u.ITEM", "r", encoding='utf-8', errors='ignore') as f:
         for line in f:
             fields = line.split('|')
             movieNames[int(fields[0])] = fields[1]
     return movieNames
 
 conf = SparkConf().setMaster("local").setAppName("PopularMovies")
-sc = SparkContext(conf = conf)
+sc = SparkContext.getOrCreate(conf = conf)
 
 nameDict = sc.broadcast(loadMovieNames())
 
-lines = sc.textFile("file:///SparkCourse/ml-100k/u.data")
+lines = sc.textFile("./ml-100k/u.data")
+#lines = sc.textFile("file:///SparkCourse/ml-100k/u.data")
 movies = lines.map(lambda x: (int(x.split()[1]), 1))
 movieCounts = movies.reduceByKey(lambda x, y: x + y)
 
